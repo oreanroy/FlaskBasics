@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import redirect
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -24,9 +25,13 @@ def __repr__(self):
 @app.route("/", methods=["GET", "POST"])
 def home():
   if request.form:
-    book = Book(title=request.form.get("title"))
-    db.session.add(book)
-    db.session.commit()
+    try:
+      book = Book(title=request.form.get("title"))
+      db.session.add(book)
+      db.session.commit()
+    except Exception as e:
+      print("Failed to add book")
+      print(e)
   books = Book.query.all()
   return render_template("home.html", books=books)
 
@@ -36,6 +41,14 @@ def update():
   oldtitle = request.form.get("oldtitle")
   book = Book.query.filter_by(title=oldtitle).first()
   book.title = newtitle
+  db.session.commit()
+  return redirect("/")
+
+@app.route("/delete", methods=["POST"])
+def delete():
+  title = request.form.get("title")
+  book = Book.query.filter_by(title=title).first()
+  db.session.delete(book)
   db.session.commit()
   return redirect("/")
 
