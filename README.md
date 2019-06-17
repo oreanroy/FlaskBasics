@@ -1,4 +1,5 @@
-Basics of Webscokets
+Basics of Websockets
+
 
 Internet Porotocol Suite
 
@@ -138,12 +139,47 @@ Client	___________________________________________________  Server
 	  // do something
 	});
  
+## Python Servers w/WebSockets
+
+{ SocketIO
+	with python-socketio:
+		flask, Tornado, Pyramid, Bottle, Sanic, AioHTTP, Tornado }
+{ Native webSockets
+	out of the box
+		sanic,AioHTTP,Tornado
+		with library
+			Flask,Django(Channels 2.0), Bottle }
 
 
 
+## Native sockets in flask
+	
+	// import setup application above
+	
+	socket = Sockets(app)
+	
+	@socket.route('/my_sockets')
+	def my_socket_event(WS):
+	  while not ws.closed:
+	    message = WS.receive()
+	    ws.send(message)
+## SocketIO Server
+	// you can use custom events and can send to mutliple people that is to a groups
+	//import setup application above
+	socket = socketio.Server()
 
-		
+	@socket.on('my custom event', namespace='/pycon')
+	def custom_event(session_id, data):
+	  // do stuff with data from client, send to all connected tp 'Pycon'
+	  socket.emit('my event on the server', data, broadcast = True)
 
+	app = socketio.Middleware(socket, app)
+	# start server below
 
+## Performance comparision
 
-
+	{ HTTP and websockets have same sized header } // socket only sends its once
+	{ 2bytes/msgoverhead } // for other messages unlike 
+	{ SocketIO increaes latency and initial conection
+	   uder the hood starts:
+             uses AJAX long Polling initialy and then upgrades }	
